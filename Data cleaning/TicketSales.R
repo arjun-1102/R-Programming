@@ -100,6 +100,3 @@ sales6<-unite(sales5, venue_city_state, c(venue_city,venue_state), sep=", ", rem
 
 # View the head of sales6
 head(sales6)
-
-
-
