@@ -80,4 +80,7 @@ cols<- c(2:5)
 # Use sapply to coerce cols to numeric
 att5[, cols] <- sapply(att5[,cols], as.numeric)
 
-
+###--------------- Test
+m=matrix(c(1:16),nrow=4,ncol=4)
+m
+m[1:4,3:4]
