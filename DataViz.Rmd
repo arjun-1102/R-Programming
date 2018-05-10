@@ -1,0 +1,913 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Exploratory visualizations - What is in the data
+
+Explanatory visualizations - What have we learned from the data
+
+
+```{r}
+plot(ChickWeight)
+```
+```{r}
+library(MASS)
+whiteside
+```
+
+Checking out the structure of the WhiteSide package
+```{r}
+str(whiteside)
+```
+
+```{r}
+plot(whiteside)
+```
+Creating an exploratory scatterplot
+```{r}
+plot(whiteside$Temp, whiteside$Gas, xlab='Outside temperature', ylab='Heating gas consumption')
+```
+Plot is a generic function, it will present the visualization according to the type of data
+```{r}
+# Apply the plot() function to Insul
+plot(whiteside$Insul)
+```
+Basic visualization of cars 93 dataset
+```{r}
+# Cars93 is in your workspace
+str(Cars93)
+
+# Plot Max.Price vs. Price as red triangles
+plot(Cars93$Price, Cars93$Max.Price, col = 'red', pch=17)
+
+# Add Min.Price vs. Price as blue circles
+points(Cars93$Price, Cars93$Min.Price, pch=16, col='blue')
+
+# Add an equality reference line with abline()
+abline(a = 0, b = 1, lty = 2)
+```
+Creating multiple plots in the same plot - Using par function
+In the below visualization, we have learnt to plot multple graphs in the same image with different titles. Basically everything between each plot statement is attributed to the initial plot.
+```{r}
+library(robustbase)
+# Animals2 is in your workspace
+str(Animals2)
+
+# Set up the side-by-side plot array
+par(mfrow = c(1,2))
+# First plot: brain vs. body in its original form
+plot(Animals2$body, Animals2$brain)
+
+# Add the first title
+title('Original representation')
+
+# Second plot: log-log plot of brain vs. body
+plot(Animals2$body, Animals2$brain, log = 'xy')
+
+# Add the second title
+title('Log-log plot')
+```
+Pie charts - Avoid as much as possible. Can be used for explanatory(to be used judiciously)
+```{r}
+library(insuranceData)
+# dataCar is in your workspace
+data("dataCar")
+str(dataCar)
+
+# Set up a side-by-side plot array
+par(mfrow = c(1, 2))
+
+# Create a table of veh_body record counts and sort
+tbl <- sort(table(dataCar$veh_body),
+            decreasing = TRUE)
+
+# Create the pie chart
+pie(tbl)
+
+# Give it a title
+title("Pie chart")
+
+# Create the barplot with perpendicular, half-sized labels
+barplot(tbl, las = 2, cex.names = 0.5)
+
+# Add a title
+title("Bar chart")
+```
+
+Characterising a single variable
+Most popular plots: 
+Histogram
+Scatter
+Density
+QQ - Heteroskedasticity/Homo - Data points should lie within the 95% confidence interval line
+
+Assumption : All values of numeric should follow gaussian normal distribution. If not, they should be converted to achieve the same. This would be best for our models
+
+----------------------------
+
+hist(uses traditional frequency) vs truehist(uses probability density)
+```{r}
+# Set up a side-by-side plot array
+par(mfrow=c(1,2))
+
+# Create a histogram of counts with hist()
+hist(Cars93$Horsepower, main='hist() plot')
+
+# Create a normalized histogram with truehist()
+truehist(Cars93$Horsepower, main='truehist() plot')
+```
+
+Density plots as smoothened histograms
+Adding density curve line
+Chickwt dataset from datasets package
+
+```{r}
+# Create index16, pointing to 16-week chicks
+index16 <- which(ChickWeight$Time == 16)
+
+# Get the 16-week chick weights
+weights <- ChickWeight$weight[index16]
+
+# Plot the normalized histogram
+truehist(weights)
+
+# Add the density curve to the histogram
+lines(density(weights))
+```
+
+Real data => Difficult to determine probability distribution
+Enter QQ Plot - Will tell us exactly if the data follows gaussian distribution or not
+```{r}
+# Load the car package to make qqPlot() available
+library(car)
+
+# Create index16, pointing to 16-week chicks
+index16 <- which(ChickWeight$Time == 16)
+
+# Get the 16-week chick weights
+weights <- ChickWeight$weight[index16]
+
+# Show the normal QQ-plot of the chick weights
+qqPlot(weights)
+
+# Show the normal QQ-plot of the Boston$tax data
+qqPlot(Boston$tax)
+```
+
+---------------------
+
+Visualizing relations between variables
+
+X and y are numeric
+
+Scatterplots - plot function(x,y) or y~x, data=Datasource
+
+Sunflower function - Represent repeated data points as sunflowers - Each iteration is each 
+
+X is numeric , Y is categorical
+Boxplots
+
+
+Mosaic plots - X and Y are categorical or X and Y are integer with multiple repeated valeus
+
+--------------------
+Scatterplots - Used to 
+
+```{r}
+# Set up a side-by-side plot array
+par(mfrow=c(1,2))
+
+# Create the standard scatterplot
+plot(Boston$zn, Boston$rad)
+
+# Add the title
+title('Standard scatterplot')
+
+# Create the sunflowerplot
+sunflowerplot(Boston$zn, Boston$rad)
+
+# Add the title
+title('Sunflower plot')
+```
+
+Boxplot - Shows how value of variable differ with respect to unique levels of secondary variable(<10 unique levels ~ good output)
+```{r}
+# Create a variable-width boxplot with log y-axis & horizontal labels
+boxplot(crim ~ rad, data = Boston, varwidth=T, log='y', las=1 )
+
+# Add a title
+title('Crime rate vs. radial highway index')
+```
+
+Mosiac plot - Scatter plot between categorical variables
+
+```{r}
+# Create a mosaic plot using the formula interface
+mosaicplot(carb ~ cyl, data = mtcars)
+```
+
+Representing more complex relationships between variables
+
+Bagplot - 2D Boxplot joint distribution of two variables
+Red star - Median
+Dark blue - Box - 50% datapoints
+Light blue - Fence 
+Pts outside are outliers
+
+Correlation coefficient - Useful preliminary view
+Relationship between two numerical varibales
+-1 < r < 1
+cor - correlation matrix
+---- Similar to rattle
+
+rpart - Decision tree models
+rpart - used to fit the tree model
+text - adds labels to the nodes
+
+```{r}
+# Load aplpack to make the bagplot() function available
+library(aplpack)
+
+# Create a side-by-side boxplot summary
+par(mfrow=c(1,2))
+boxplot(Cars93$Min.Price, Cars93$Max.Price)
+
+# Create a bagplot for the same two variables
+bagplot(Cars93$Min.Price, Cars93$Max.Price, cex=1.2)
+
+# Add an equality reference line
+abline(0,1, lty=2)
+```
+
+Correlation matrix----------------
+
+
+```{r}
+# Load the corrplot library for the corrplot() function
+library(corrplot)
+
+# Extract the numerical variables from UScereal
+numericalVars <- UScereal[,unlist(lapply(UScereal, is.numeric))]
+
+# Compute the correlation matrix for these variables
+corrMat <- cor(numericalVars)
+
+# Generate the correlation ellipse plot
+corrplot(corrMat, method='ellipse')
+```
+Plotting decision based models
+
+```{r}
+# Load the rpart library
+library(rpart)
+
+# Fit an rpart model to predict medv from all other Boston variables
+tree_model <- rpart(medv ~., data= Boston)
+
+# Plot the structure of this decision tree model
+plot(tree_model)
+
+# Add labels to this plot
+text(tree_model, cex=0.7)
+```
+
+
+Plot()
+global function - par - params : mfrow, cex.main (Specifies the size)
+pch - shape of points
+
+high level - plots(eg. plot())
+low level - adding features to plots
+lines, titles
+
+```{r}
+## Exploring the par function and it's parameters
+# Assign the return value from the par() function to plot_pars
+plot_pars <- par()
+
+# Display the names of the par() function's list elements
+names(plot_pars)
+
+# Display the number of par() function list elements
+length(plot_pars)
+```
+
+```{r}
+# Set up a 2-by-2 plot array
+par(mfrow=c(2,2))
+
+# Plot the Animals2 brain weight data as points
+plot(Animals2$brain, type = "p")
+
+# Add the title
+title("points")
+
+# Plot the brain weights with lines
+plot(Animals2$brain, type = "l")
+
+# Add the title
+title("lines")
+
+# Plot the brain weights as lines overlaid with points
+plot(Animals2$brain, type = "o")
+
+# Add the title
+title("overlaid")
+
+# Plot the brain weights as steps
+plot(Animals2$brain, type = "s")
+
+# Add the title
+title("steps")
+```
+Plotting multiple data frames on the same plot - Exploring the pch types :)
+```{r}
+# Compute max_hp
+max_hp <- max(Cars93$Horsepower, mtcars$hp)
+
+# Compute max_mpg
+max_mpg <- max(Cars93$MPG.city, Cars93$MPG.highway, mtcars$mpg)
+
+# Create plot with type = "n"               
+plot(max_hp, max_mpg,
+     type = "n", xlim = c(0, max_hp),
+     ylim = c(0, max_mpg), xlab = "Horsepower",
+     ylab = "Miles per gallon")
+
+# Add open circles to plot
+points(mtcars$hp, mtcars$mpg, pch = 1)
+
+# Add solid squares to plot
+points(Cars93$Horsepower, Cars93$MPG.city, pch = 15)
+
+# Add open triangles to plot
+points(Cars93$Horsepower, Cars93$MPG.highway, pch = 2)
+```
+
+Hist - probability
+truhist - normalized probability
+lines - adding lines to a plot(x,y)
+abline - adds straight lines (slope, intercept)
+
+```{r}
+## Exploring the lines function
+# Create the numerical vector x
+x <- seq(0, 10, length = 200)
+
+# Compute the Gaussian density for x with mean 2 and standard deviation 0.2
+gauss1 <- dnorm(x, mean = 2, sd = 0.2)
+
+# Compute the Gaussian density with mean 4 and standard deviation 0.5
+gauss2 <- dnorm(x, mean = 4, sd = 0.5)
+
+# Plot the first Gaussian density
+plot(x, gauss1, ylab="Gaussian probability density", type="l")
+
+# Add lines for the second Gaussian density
+lines(x, gauss2, lty=2, lwd=3)
+```
+
+```{r}
+## Exploring point options
+# Create an empty plot using type = "n"
+plot(mtcars$hp, mtcars$mpg, type="n", xlab="Horsepower", ylab="Gas mileage")
+
+# Add points with shapes determined by cylinder number
+
+points(mtcars$hp, mtcars$mpg, pch=mtcars$cyl)
+
+# Create a second empty plot
+plot(mtcars$hp, mtcars$mpg, type="n", xlab="Horsepower", ylab="Gas mileage")
+
+# Add points with shapes as cylinder characters
+points(mtcars$hp, mtcars$mpg, pch = as.character(mtcars$cyl))
+```
+
+Creating a regression model and adding reference line
+```{r}
+# Build a linear regression model for the whiteside data
+linear_model <- lm(Gas ~ Temp, data=whiteside)
+
+# Create a Gas vs. Temp scatterplot from the whiteside data
+plot(whiteside$Temp, whiteside$Gas)
+
+# Use abline() to add the linear regression line
+abline(linear_model, lty=2)
+```
+
+Adding text to plot 
+Plot + Text = Great visualization
+axis labels
+titles
+legends
+text in plots \n => new line
+text(x,y labels, adj - 0.5 0(Left alignment, 1 Right aligned))
+srt= angle of text orientation with respect to x axis
+col - color of the text can be altered using this parameter
+cex=1.2 - 20% larger
+font -1 normal 2 bold 3 italics 4 bold and italics
+
+```{r}
+
+## Exploring text within plots
+# Create MPG.city vs. Horsepower plot with solid squares
+plot(Cars93$Horsepower, Cars93$MPG.city, pch=15)
+
+# Create index3, pointing to 3-cylinder cars
+index3<-which(Cars93$Cylinders == 3)
+
+# Add text giving names of cars next to data points
+text(x = Cars93$Horsepower[index3], 
+     y = Cars93$MPG.city[index3],
+     labels = Cars93$Make[index3], adj = 0)
+```
+
+```{r}
+
+### Some more text properties
+# Plot MPG.city vs. Horsepower as open circles
+plot(Cars93$Horsepower, Cars93$MPG.city, pch=1)
+
+# Create index3, pointing to 3-cylinder cars
+index3 <- which(Cars93$Cylinders ==3)
+
+# Highlight 3-cylinder cars as solid circles
+points(Cars93$Horsepower[index3], Cars93$MPG.city[index3], pch=16)
+
+# Add car names, offset from points, with larger bold text
+text(Cars93$Horsepower[index3], Cars93$MPG.city[index3], labels=Cars93$Make[index3], adj = -0.2, cex=1.2, font=4 )
+```
+
+```{r}
+### Playing around with labels god mode
+# Plot Gas vs. Temp as solid triangles
+plot(whiteside$Temp, whiteside$Gas, pch=17)
+
+# Create indexB, pointing to "Before" data
+indexB<- which(whiteside$Insul == "Before")
+
+# Create indexA, pointing to "After" data
+indexA<- which(whiteside$Insul == "After")
+
+# Add "Before" text in blue, rotated 30 degrees, 80% size
+text(x = whiteside$Temp[indexB], y =whiteside$Gas[indexB],
+     labels = "Before", col = "blue", srt = 30, cex = 0.8)
+
+# Add "After" text in red, rotated -20 degrees, 80% size
+text(x = whiteside$Temp[indexA], y =whiteside$Gas[indexA],
+     labels ="After", col = "red", srt = -20, cex = 0.8)
+
+```
+
+Legends - X legend position, pch and col can be added easily
+
+```{r}
+# Set up and label empty plot of Gas vs. Temp
+plot(whiteside$Temp, whiteside$Gas,
+     type = "n", xlab = "Outside temperature",
+     ylab = "Heating gas consumption")
+
+# Create indexB, pointing to "Before" data
+indexB <- which(whiteside$Insul == "Before")
+
+# Create indexA, pointing to "After" data
+indexA <- which (whiteside$Insul == "After")
+
+# Add "Before" data as solid triangles
+points(whiteside$Temp[indexB], whiteside$Gas[indexB], pch=17)
+
+# Add "After" data as open circles
+points(whiteside$Temp[indexB], whiteside$Gas[indexB], pch = 1)
+
+# Add legend that identifies points as "Before" and "After"
+legend("topright", pch = c(17,1), 
+       legend = c("Before", "After"))
+```
+
+```{r}
+# Create a boxplot of sugars by shelf value, without axes
+boxplot(sugars ~ shelf, data = UScereal,
+        axes = FALSE)
+
+# Add a default y-axis to the left of the boxplot
+axis(side = 2)
+
+# Add an x-axis below the plot, labelled 1, 2, and 3
+axis(side = 1, at = c(1, 2, 3))
+
+# Add a second x-axis above the plot
+axis(side = 3, at = c(1, 2, 3),
+     labels = c("floor", "middle", "top"))
+```
+
+```{r}
+### Playing around with trend lines
+# Create a scatterplot of MPG.city vs. Horsepower
+plot(Cars93$Horsepower, Cars93$MPG.city)
+
+# Call supsmu() to generate a smooth trend curve, with default bass
+trend1 <- supsmu(Cars93$Horsepower, Cars93$MPG.city, bass=0)
+
+# Add this trend curve to the plot
+lines(trend1)
+
+# Call supsmu() for a second trend curve, with bass = 10
+trend2 <- supsmu(Cars93$Horsepower, Cars93$MPG.city, bass=10)
+
+# Add this trend curve as a heavy, dotted line
+lines(trend2, lty=3, lwd=2)
+
+```
+Managing visual complexity
+Too small - Visual utility loss, too much information on the plots
+Too large - Not visually appealing
+
+Alt:
+Multiple plots on the same axis using differential techniques color encoding, legends
+
+How much detail is too much?
+
+```{r}
+## Too much detail, too many plots
+# Compute the number of plots to be displayed
+ncol(Cars93)^2
+
+# Plot the array of scatterplots
+plot(Cars93)
+```
+
+
+Using the matplot function to create multiple plots on the same plot
+```{r}
+# Construct the vector keep_vars
+keep_vars <- c("calories", "protein", "fat",
+               "fibre", "carbo", "sugars")
+
+# Use keep_vars to extract the desired subset of UScereal
+df <- UScereal[, keep_vars]
+
+# Set up a two-by-two plot array
+par(mfrow = c(2,2))
+
+# Use matplot() to generate an array of two scatterplots
+matplot(df$calories, df[, c("protein","fat")], xlab = "calories", ylab="")
+# Add a title
+title("Two scatterplots")
+
+# Use matplot() to generate an array of three scatterplots
+matplot(df$calories, df[, c("protein","fat","fibre")], xlab = "calories", ylab="")
+# Add a title
+title("Three scatterplots")
+
+# Use matplot() to generate an array of four scatterplots
+matplot(df$calories, df[, c("protein","fat","fibre","carbo")], xlab = "calories", ylab="")
+
+# Add a title
+title("Four scatterplots")
+
+# Use matplot() to generate an array of five scatterplots
+matplot(df$calories, df[, c("protein","fat","fibre","carbo","sugars")], xlab = "calories", ylab="")
+
+# Add a title
+title("Five scatterplots")
+```
+Wordcloud package
+Min freq value =  3 by default, can be changed to 1 for all manufacturers
+```{r}
+library(wordcloud)
+# Create mfr_table of manufacturer frequencies
+mfr_table <- table(Cars93$Manufacturer)
+head(mfr_table)
+# Create the default wordcloud from this table
+wordcloud(words = names(mfr_table), 
+          freq = as.numeric(mfr_table), 
+          scale = c(2,0.25))
+
+# Change the minimum word frequency
+wordcloud(words = names(mfr_table), 
+          freq = as.numeric(mfr_table), 
+          scale = c(2,0.25), 
+          min.freq = 1)
+
+# Create model_table of model frequencies
+model_table <- table(Cars93$Model)
+
+# Create the wordcloud of all model names with smaller scaling
+wordcloud(words = names(model_table), 
+          freq = as.numeric(model_table), 
+          scale = c(0.75,0.25), 
+          min.freq = 1)
+```
+
+Creating plot arrays with mfrow argument
+
+Multiple plot arrays - Differences/different views of dataset
+
+Pairs function(sets up two columns)
+
+mfrow - multiple plots
+layout - multiple plots
+
+plot size
+pty = s(square), im (Max available space)
+
+Creating multiple plots in the same window
+```{r}
+# Set up a two-by-two plot array
+par(mfrow = c(2,2))
+
+# Plot y1 vs. x1 
+plot(anscombe$x1, anscombe$y1)
+
+# Plot y2 vs. x2
+plot(anscombe$x2, anscombe$y2)
+
+# Plot y3 vs. x3
+plot(anscombe$x3, anscombe$y3)
+
+# Plot y4 vs. x4
+plot(anscombe$x4, anscombe$y4)
+```
+Common Scaling - Is used to set the common limites of each variable. This means that different datasets can be compared easily since juxtaposing datasets on same axis can serve as preemptive measure
+```{r}
+# Define common x and y limits for the four plots
+xmin <- min(anscombe$x1,anscombe$x2,anscombe$x3,anscombe$x4)
+xmax <- max(anscombe$x1,anscombe$x2,anscombe$x3,anscombe$x4)
+ymin <- round(min(anscombe$y1,anscombe$y2,anscombe$y3,anscombe$y4))
+ymax <- round(max(anscombe$y1,anscombe$y2,anscombe$y3,anscombe$y4))
+
+# Set up a two-by-two plot array
+par(mfrow=c(2,2))
+
+# Plot y1 vs. x1 with common x and y limits, labels & title
+plot(anscombe$x1, anscombe$y1,
+     xlim = c(xmin, xmax),
+     ylim = c(ymin, ymax),
+     xlab = "x value", ylab = "y value",
+     main = "First dataset")
+
+# Do the same for the y2 vs. x2 plot
+plot(anscombe$x2, anscombe$y2,
+     xlim = c(xmin, xmax),
+     ylim = c(ymin, ymax),
+     xlab = "x value", ylab = "y value",
+     main = "Second dataset")
+
+# Do the same for the y3 vs. x3 plot
+plot(anscombe$x3, anscombe$y3,
+     xlim = c(xmin, xmax),
+     ylim = c(ymin, ymax),
+     xlab = "x value", ylab = "y value",
+     main = "Third dataset")
+
+# Do the same for the y4 vs. x4 plot
+plot(anscombe$x4, anscombe$y4,
+     xlim = c(xmin, xmax),
+     ylim = c(ymin, ymax),
+     xlab = "x value", ylab = "y value",
+     main = "Fourth dataset")
+```
+
+Exploring different data graphs plotted on the same axis
+```{r}
+# Set up a two-by-two plot array
+par(mfrow=c(2,2))
+
+# Plot the raw duration data
+plot(geyser$duration, main='Raw data')
+
+# Plot the normalized histogram of the duration data
+truehist(geyser$duration, main='Histogram')
+
+# Plot the density of the duration data
+plot(density(geyser$duration), main='Density')
+
+# Construct the normal QQ-plot of the duration data
+qqPlot(geyser$duration, main="QQ-plot")
+```
+Creating plots with layout function()
+layout - uses matrix to define the plot array
+```{r}
+## Playing around with layout function
+# Use the matrix function to create a matrix with three rows and two columns
+layoutMatrix <- matrix(
+  c(
+    0, 1,
+    2, 0,
+    0, 3
+  ), 
+  byrow = T, 
+  nrow = 3
+)
+
+# Call the layout() function to set up the plot array
+layout(layoutMatrix)
+
+# Show where the three plots will go 
+layout.show(n=3)
+```
+Advanced multiple plotting using layout function
+```{r}
+# Set up the plot array
+layout(layoutMatrix)
+
+# Construct vectors indexB and indexA
+indexB <- which(whiteside$Insul == "Before")
+indexA <- which(whiteside$Insul =="After")
+
+# Create plot 1 and add title
+plot(whiteside$Temp[indexB], whiteside$Gas[indexB],
+     ylim = c(0,8))
+title("Before data only")
+
+# Create plot 2 and add title
+plot(whiteside$Temp, whiteside$Gas,
+     ylim = c(0,8))
+title("Complete dataset")
+
+
+
+# Create plot 3 and add title
+plot(whiteside$Temp[indexA], whiteside$Gas[indexA],
+     ylim = c(0,8))
+title("After data only")
+```
+Creating different sized subplots - luxury with layout function - cannot be done using par function
+```{r}
+# Create row1, row2, and layoutVector
+row1 <- c(1,0,0)
+row2 <- c(0,2,2)
+layoutVector <- c(row1,row2, row2)
+
+# Convert layoutVector into layoutMatrix
+layoutMatrix <- matrix(layoutVector, byrow = T, nrow = 3)
+
+# Set up the plot array
+layout(layoutMatrix)
+
+# Plot scatterplot
+plot(Boston$rad, Boston$zn)
+
+# Plot sunflower plot
+sunflowerplot(Boston$rad, Boston$zn)
+```
+Creating and saving more complex plots
+
+----------
+
+Side effects - Generate plots but no return values
+barplot() - returns numerical value
+scatterplots()
+
+symbols() - data points can be customized using this
+
+bg = color
+
+plots can be saved as image files
+png()
+
+```{r}
+## Adding text to labels
+# Create a table of Cylinders frequencies
+tbl <- table(Cars93$Cylinders)
+
+# Generate a horizontal barplot of these frequencies
+mids <- barplot(tbl, horiz = T,
+                col ="transparent",
+                names.arg = "")
+
+# Add names labels with text()
+text(20, mids, labels=names(tbl))
+
+# Add count labels with text()
+text(35, mids, labels = as.numeric(tbl))
+```
+
+```{r}
+## Exploring the symbols function
+# Call symbols() to create the default bubbleplot
+symbols(Cars93$Horsepower, Cars93$MPG.city,
+        circles = sqrt(Cars93$Price))
+
+# Repeat, with the inches argument specified
+symbols(Cars93$Horsepower, Cars93$MPG.city,
+        circles = sqrt(Cars93$Price),
+        inches = 0.1)
+```
+Saving plot as png file:
+```{r}
+# Call png() with the name of the file we want to create
+png("bubbleplot.png")
+
+# Re-create the plot from the last exercise
+symbols(Cars93$Horsepower, Cars93$MPG.city,
+        circles = sqrt(Cars93$Price),
+        inches = 0.1)
+
+# Save our file and return to our interactive session
+dev.off()
+
+# Verify that we have created the file
+list.files(pattern = "png")
+```
+Using color effectively
+
+Different colors for differnt categorical variables
+Limitations:
+-Color blind
+-Redistributed as black and white
+-Too many colors, too less colors 
+
+Sol:
+Ideally 6
+Max 12
+No more than 20
+
+Adding color to life ;)
+```{r}
+# Iliinsky and Steele color name vector
+IScolors <- c("red", "green", "yellow", "blue",
+              "black", "white", "pink", "cyan",
+              "gray", "orange", "brown", "purple")
+
+# Create the data for the barplot
+barWidths <- c(rep(2, 6), rep(1, 6))
+
+# Recreate the horizontal barplot with colored bars
+barplot(rev(barWidths), horiz = T,
+        col = rev(IScolors), axes = F,
+        names.arg = rev(IScolors), las = 1)
+```
+Advanced coloring options
+```{r}
+# Iliinsky and Steele color name vector
+IScolors <- c("red", "green", "yellow", "blue",
+              "black", "white", "pink", "cyan",
+              "gray", "orange", "brown", "purple")
+
+# Create the `cylinderLevel` variable
+cylinderLevels <- as.numeric(Cars93$Cylinders)
+
+# Create the colored bubbleplot
+symbols(Cars93$Horsepower, Cars93$MPG.city, 
+        circles = cylinderLevels, inches = 0.2, 
+        bg = IScolors[cylinderLevels])
+```
+```{r}
+### Creating a stacked bar graph
+
+# Create a table of Cylinders by Origin
+tbl <- table(Cars93$Cylinders, Cars93$Origin)
+
+# Create the default stacked barplot
+barplot(tbl)
+
+# Enhance this plot with color
+barplot(tbl, col=IScolors)
+```
+
+Graphic systems in R
+1. Base - Good for exploratory analysis
+2. Grid - grid package - greater control over low level graphical details
+grid-base - hybrid of base and grid
+3. Lattice - extension of grid graphics - eg conditional scatterplot
+4. ggplot2 - extension of grid graphics - better for high level visualizations
+stages
+These are incompatible with each other
+```{r}
+# Load the insuranceData package
+library(insuranceData)
+
+# Use the data() function to load the dataCar data frame
+data(dataCar)
+
+# Load the tabplot package
+suppressPackageStartupMessages(library(tabplot))
+
+# Generate the default tableplot() display
+tableplot(dataCar)
+```
+
+Enter ggplot
+```{r}
+# Load the ggplot2 package
+library(ggplot2)
+
+# Create the basic plot (not displayed): basePlot
+basePlot <- ggplot(Cars93, aes(x = Horsepower, y = MPG.city))
+
+# Display the basic scatterplot
+basePlot + 
+  geom_point()
+
+# Color the points by Cylinders value
+basePlot + 
+  geom_point(colour = IScolors[Cars93$Cylinders])
+
+# Make the point sizes also vary with Cylinders value
+basePlot + 
+  geom_point(colour = IScolors[Cars93$Cylinders], 
+             size = as.numeric(Cars93$Cylinders))
+```
+
+
